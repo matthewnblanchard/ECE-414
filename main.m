@@ -15,7 +15,7 @@ G_v = 5;        % Voltage amplifier
 g = 9.8;        % Gravitational constant
 
 % Selectables
-i = 1                                           % Motor selection
+i = 1;                                          % Motor selection
 N = 25;                                         % Gearbox ratio, 10 - 50
 N_span = linspace(10, 50, 41);
 J_eff = J_m + J_g + (1./(N.^2)).*(J_T + J_s);   % Effective Inertia
@@ -75,6 +75,18 @@ ts = .3;
 [D, T_motor, Tu, Td, L] = lamdesign(G_x, Do);
 stepinfo(T_motor)
 %}
+
+
+% Best motor controller design, trying it by hand
+%{
+
+[d, c] = pidtune(G_x, 'PD');
+L = G_x*d;
+T_motor = feedback(L, 1);
+stepinfo(T_motor)
+
+%}
+
 
 
 
