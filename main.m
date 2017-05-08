@@ -53,7 +53,7 @@ G_na = g*K_s;
 
 % Plant denominator (angle)
 G_da = [ ...
-    N*(1+A), ...      % s^2
+    (1+A), ...      % s^2
     0, ...            % s^1
     0];               % s^0                                  
 G_a = tf(G_na, G_da);
