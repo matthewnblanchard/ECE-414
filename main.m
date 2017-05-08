@@ -87,6 +87,7 @@ figure();
 rlocus(L);
 %}
 
+% Motor controller design
 z = -75;
 p = -85;
 
@@ -99,6 +100,12 @@ D = k*D;
 T_motor = feedback(D*G_x, 1);
 figure();
 step(T_motor);
-stepinfo(T_motor)
+info = stepinfo(T_motor);
+
+% New plant for motor two
+
+G_p2 = T_motor * G_a;
+G_p2 = minreal(G_p2);
+
 
 
