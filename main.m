@@ -36,7 +36,7 @@ A = 1 + ((2 .* (R_b.^2)) ./ (5 .* r_b));
 N = 15;          % Selected Gearbox 
 
 % Plant numerator (position)
-G_nx = K_T(1);
+G_nx = G_v*K_T(1);
 
 % Plant denominator, motor
 G_dx = [ ...
