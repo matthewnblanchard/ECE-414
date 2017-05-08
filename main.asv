@@ -15,11 +15,11 @@ G_v = 5;        % Voltage amplifier
 g = 9.8;        % Gravitational constant
 
 % Selectables
-N = 35;         % Gearbox ratio, 10 - 50
+N = 25;                                         % Gearbox ratio, 10 - 50
 N_span = linspace(10, 50, 41);
+J_eff = J_m + J_g + (1./(N.^2)).*(J_T + J_s);   % Effective Inertia
 
 % Motor Variables
-J_eff = J_m + J_g + (1./(N.^2)).*(J_T + J_s);   % Effective Inertia
 K_T = [0.225, 0.175, 0.125, 0.275];  % Motor Torque Constant
 R_m = [8, 6, 4, 12];                 % Motor Resistance
 L_m = [25e-3, 16e-3, 7.5e-3, 32e-3]; % Motor Inductance
@@ -33,18 +33,18 @@ A = 1 + ((2 .* (R_b.^2)) ./ (5 .* (r_b.^2)));
 
 % Generate the plant
 
-N = 15;          % Selected Gearbox 
-
 % Plant numerator (position)
-G_nx = G_v*K_T(1);
+
 
 % Plant denominator, motor
+for i = 1:4
+G_nx = G_v*K_T(i);
 G_dx = [ ...
-    (N .* J_eff(N) .* L_m(1)), ...                    % s^3
-    (N .* (R_m(1) .* J_eff(N) + B_m .* L_m(1))), ...  % s^2
-    (N .* (K_T(1).^2 + R_m(1) .* B_m)), ...        % s^1
-    0];                                            % s^0
-    
+    (N .* J_eff .* L_m(i)), ...                       % s^3
+    (N .* (R_m(i) .* J_eff + B_m .* L_m(i))), ...     % s^2
+    (N .* (K_T(i).^2 + R_m(i) .* B_m)), ...           % s^1
+    0];                             % s^0
+en
 % Plant, motor
 G_x = tf(G_nx, G_dx);
 
@@ -58,6 +58,18 @@ G_da = [ ...
     0];               % s^0                                  
 G_a = tf(G_na, G_da);
 
-%Motor controller
+G_x = minreal(G_x);
+G_a = minreal(G_a);
 
+% Motor controller
+
+%{
+os = 0;
+n = 6;
+ts = .3;
+
+[No, Do] = stepshape(n,os,ts);
+[D, T_motor, Tu, Td, L] = lamdesign(G_x, Do);
+stepinfo(T_motor)
+%}
 

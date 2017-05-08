@@ -15,6 +15,7 @@ G_v = 5;        % Voltage amplifier
 g = 9.8;        % Gravitational constant
 
 % Selectables
+i = 1                                           % Motor selection
 N = 25;                                         % Gearbox ratio, 10 - 50
 N_span = linspace(10, 50, 41);
 J_eff = J_m + J_g + (1./(N.^2)).*(J_T + J_s);   % Effective Inertia
@@ -34,17 +35,21 @@ A = 1 + ((2 .* (R_b.^2)) ./ (5 .* (r_b.^2)));
 % Generate the plant
 
 % Plant numerator (position)
-G_nx = G_v*K_T(1);
+
 
 % Plant denominator, motor
+
+G_nx = G_v*K_T(i);
+
 G_dx = [ ...
-    (N .* J_eff .* L_m(1)), ...                       % s^3
-    (N .* (R_m(1) .* J_eff + B_m .* L_m(1))), ...     % s^2
-    (N .* (K_T(1).^2 + R_m(1) .* B_m)), ...           % s^1
-    0];                                               % s^0
-    
+    (N .* J_eff .* L_m(i)), ...                       % s^3
+    (N .* (R_m(i) .* J_eff + B_m .* L_m(i))), ...     % s^2
+    (N .* (K_T(i).^2 + R_m(i) .* B_m)), ...           % s^1
+    0];                             % s^0
+
 % Plant, motor
 G_x = tf(G_nx, G_dx);
+G_x = minreal(G_x);
 
 % Plant numerator (angle)
 G_na = g*K_s;
@@ -56,11 +61,11 @@ G_da = [ ...
     0];               % s^0                                  
 G_a = tf(G_na, G_da);
 
-G_x = minreal(G_x);
 G_a = minreal(G_a);
 
 % Motor controller
 
+% failed LAM design
 %{
 os = 0;
 n = 6;
@@ -70,4 +75,6 @@ ts = .3;
 [D, T_motor, Tu, Td, L] = lamdesign(G_x, Do);
 stepinfo(T_motor)
 %}
+
+
 
