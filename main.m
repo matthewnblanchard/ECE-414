@@ -33,37 +33,30 @@ A = 1 + ((2 .* (R_b.^2)) ./ (5 .* r_b));
 
 % Generate the plant
 
-n = 15;          % Selected Gearbox 
+N = 15;          % Selected Gearbox 
 
 % Plant numerator (position)
-G_nx = g .* K_s .* K_T(1);
+G_nx = K_T(1);
 
-% Plant denominator
+% Plant denominator, motor
 G_dx = [ ...
-    (A .* n .* J_eff .* L_m(1)), ...                    % s^5
-    (A .* n .* (R_m(1) .* J_eff + B_m .* L_m(1))), ...  % s^4
-    (A .* n .* (K_T(1).^2 + R_m(1) .* B_m)), ...        % s^3
-    0, ...                                              % s^2
-    0, ...                                              % s^1
+    (N .* J_eff .* L_m(1)), ...                    % s^5
+    (N .* (R_m(1) .* J_eff + B_m .* L_m(1))), ...  % s^4
+    (N .* (K_T(1).^2 + R_m(1) .* B_m)), ...        % s^3
     0];                                                 % s^0
-
-% Plant
+    
+% Plant, motor
 G_x = tf(G_nx, G_dx);
 
 % Plant numerator (angle)
-G_na = K_T(1) ./ N;
+G_na = g*K_s;
 
 % Plant denominator (angle)
 G_da = [ ...
-    (J_eff .* L_m(1)), ...                      % s^3
-    (R_m(1) .* J_eff + B_m .* L_m(1)), ...      % s^2
-    (K_T(1) .^ 2 + R_m(1) .* B_m), ...             % s^1
-    0];                                         % s^0 
+    N*(1+A), ...      % s^2
+    0, ...             % s^1
+    0];                                        % s^0
 
 G_a = tf(G_na, G_da);
-
-
-
-
 
 
