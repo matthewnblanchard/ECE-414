@@ -79,14 +79,26 @@ stepinfo(T_motor)
 
 % Best motor controller design, trying it by hand
 %{
-
-[d, c] = pidtune(G_x, 'PD');
+[d, c] = pidtune(G_x, 'PDF');
 L = G_x*d;
 T_motor = feedback(L, 1);
 stepinfo(T_motor)
-
+figure();
+rlocus(L);
 %}
 
+z = -75;
+p = -85;
 
+D = zpk(z, p, 1);
+figure();
+rlocus(G_x*D);
+
+k = 32.6;
+D = k*D;
+T_motor = feedback(D*G_x, 1);
+figure();
+step(T_motor);
+stepinfo(T_motor)
 
 
