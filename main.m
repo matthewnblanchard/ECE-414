@@ -15,7 +15,7 @@ G_v = 5;        % Voltage amplifier
 g = 9.8;        % Gravitational constant
 
 % Selectables
-N = 35;                                         % Gearbox ratio, 10 - 50
+N = 25;                                         % Gearbox ratio, 10 - 50
 N_span = linspace(10, 50, 41);
 J_eff = J_m + J_g + (1./(N.^2)).*(J_T + J_s);   % Effective Inertia
 
@@ -56,6 +56,18 @@ G_da = [ ...
     0];               % s^0                                  
 G_a = tf(G_na, G_da);
 
+G_x = minreal(G_x);
+G_a = minreal(G_a);
+
 % Motor controller
 
+%{
+os = 0;
+n = 6;
+ts = .3;
+
+[No, Do] = stepshape(n,os,ts);
+[D, T_motor, Tu, Td, L] = lamdesign(G_x, Do);
+stepinfo(T_motor)
+%}
 
