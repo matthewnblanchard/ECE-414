@@ -4,7 +4,7 @@
 
 % ========== Variables ========== %
 % Constants
-K_s = 0.01;     % Touch sensor gain: 0.1V/cm = 0.01V/m
+K_s = 10;     % Touch sensor gain: 0.1V/cm = 10V/m
 J_s = 1.4e-7;   % Angular sensor inertia
 J_g = 6.2e-6;   % Gearbox inertia 
 J_m = 5.0e-5;   % Motor inertia
