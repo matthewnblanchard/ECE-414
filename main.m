@@ -27,7 +27,7 @@ L_m = [25e-3, 16e-3, 7.5e-3, 32e-3]; % Motor Inductance
 % Ball Constants
 R_b = 10e-3;     % Ball radius
 r_b = 6e-3;      % Distance from ball center to channel wall
-A = 1 + ((2 .* (R_b.^2)) ./ (5 .* r_b));
+A = 1 + ((2 .* (R_b.^2)) ./ (5 .* (r_b.^2));
 
 % ========================== %
 
