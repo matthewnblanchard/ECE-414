@@ -9,7 +9,7 @@ J_s = 1.4e-7;   % Angular sensor inertia
 J_g = 6.2e-6;   % Gearbox inertia 
 J_m = 5.0e-5;   % Motor inertia
 J_T = 1.8e-3;   % Track inertia
-J_eff = J_m + J_g + (1./(N.^2)).*(J_T + J_s);   % Effective Inertia
+
 B_m = 3.0e-6;   % Motor viscous friction
 G_v = 5;        % Voltage amplifier
 g = 9.8;        % Gravitational constant
@@ -19,6 +19,7 @@ N = 35;         % Gearbox ratio, 10 - 50
 N_span = linspace(10, 50, 41);
 
 % Motor Variables
+J_eff = J_m + J_g + (1./(N.^2)).*(J_T + J_s);   % Effective Inertia
 K_T = [0.225, 0.175, 0.125, 0.275];  % Motor Torque Constant
 R_m = [8, 6, 4, 12];                 % Motor Resistance
 L_m = [25e-3, 16e-3, 7.5e-3, 32e-3]; % Motor Inductance
@@ -50,13 +51,13 @@ G_dx = [ ...
 G_x = tf(G_nx, G_dx);
 
 % Plant numerator (angle)
-G_na = K_T ./ N;
+G_na = K_T(1) ./ N;
 
 % Plant denominator (angle)
 G_da = [ ...
     (J_eff .* L_m(1)), ...                      % s^3
     (R_m(1) .* J_eff + B_m .* L_m(1)), ...      % s^2
-    (K_T .^ 2 + R_m(1) .* B_m), ...             % s^1
+    (K_T(1) .^ 2 + R_m(1) .* B_m), ...             % s^1
     0];                                         % s^0 
 
 G_a = tf(G_na, G_da);
