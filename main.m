@@ -40,10 +40,10 @@ G_nx = K_T(1);
 
 % Plant denominator, motor
 G_dx = [ ...
-    (N .* J_eff .* L_m(1)), ...                    % s^5
-    (N .* (R_m(1) .* J_eff + B_m .* L_m(1))), ...  % s^4
-    (N .* (K_T(1).^2 + R_m(1) .* B_m)), ...        % s^3
-    0];                                                 % s^0
+    (N .* J_eff .* L_m(1)), ...                    % s^3
+    (N .* (R_m(1) .* J_eff + B_m .* L_m(1))), ...  % s^2
+    (N .* (K_T(1).^2 + R_m(1) .* B_m)), ...        % s^1
+    0];                                            % s^0
     
 % Plant, motor
 G_x = tf(G_nx, G_dx);
@@ -54,9 +54,10 @@ G_na = g*K_s;
 % Plant denominator (angle)
 G_da = [ ...
     N*(1+A), ...      % s^2
-    0, ...             % s^1
-    0];                                        % s^0
-
+    0, ...            % s^1
+    0];               % s^0                                  
 G_a = tf(G_na, G_da);
+
+%Motor controller
 
 
