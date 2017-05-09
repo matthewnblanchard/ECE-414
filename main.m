@@ -34,34 +34,32 @@ A = 1 + ((2 .* (R_b.^2)) ./ (5 .* (r_b.^2)));
 
 % Generate the plant
 
-% Plant numerator (position)
+% Motor plant numerator
+G_nm = G_v .* K_T(i);
 
-
-% Plant denominator, motor
-
-G_nx = G_v*K_T(i);
-
-G_dx = [ ...
+% Motor plant denominator
+G_dm = [ ...
     (N .* J_eff .* L_m(i)), ...                       % s^3
     (N .* (R_m(i) .* J_eff + B_m .* L_m(i))), ...     % s^2
     (N .* (K_T(i).^2 + R_m(i) .* B_m)), ...           % s^1
-    0];                             % s^0
+    0];                                               % s^0
 
 % Plant, motor
+G_m = tf(G_nm, G_dm);
+G_m = minreal(G_m);
+
+% Position plant, numerator
+G_nx = g .* K_s;
+
+% Position plant, denominator
+G_dx = [ ...
+    A, ...            % s^2
+    0, ...            % s^1
+    0];               % s^0     
+
+% Plant,position
 G_x = tf(G_nx, G_dx);
 G_x = minreal(G_x);
-
-% Plant numerator (angle)
-G_na = g*K_s;
-
-% Plant denominator (angle)
-G_da = [ ...
-    (1+A), ...        % s^2
-    0, ...            % s^1
-    0];               % s^0                                  
-G_a = tf(G_na, G_da);
-
-G_a = minreal(G_a);
 
 % Motor controller
 
@@ -72,15 +70,15 @@ n = 6;
 ts = .3;
 
 [No, Do] = stepshape(n,os,ts);
-[D, T_motor, Tu, Td, L] = lamdesign(G_x, Do);
+[D, T_motor, Tu, Td, L] = lamdesign(G_m, Do);
 stepinfo(T_motor)
 %}
 
 
 % Best motor controller design, trying it by hand
 %{
-[d, c] = pidtune(G_x, 'PDF');
-L = G_x*d;
+[d, c] = pidtune(G_m, 'PDF');
+L = G_m*d;
 T_motor = feedback(L, 1);
 stepinfo(T_motor)
 figure();
@@ -93,19 +91,44 @@ p = -85;
 
 D = zpk(z, p, 1);
 figure();
-rlocus(G_x*D);
+rlocus(G_m .* D);
 
 k = 32.6;
-D = k*D;
-T_motor = feedback(D*G_x, 1);
+D = k .* D;
+T_motor = feedback(D .* G_m, 1);
 figure();
 step(T_motor);
-info = stepinfo(T_motor);
+info_m = stepinfo(T_motor);
 
-% New plant for motor two
+% Combine motor controller and position (ball and track) plant
+% to get plant of position controller
+G_x2 = T_motor * G_x;
+G_x2 = minreal(G_x2);
 
-G_p2 = T_motor * G_a;
-G_p2 = minreal(G_p2);
+% Position controller design
+figure();          
+rlocus(G_x2);
+title('Position Controller Plant');
 
+% Two poles at origin, need a lead controller to bring them into the 
+% RHP. This takes the form of 
+%       (s + z)
+% D = k --------
+%       (s + p)
+% where p's magnitude is greater than z's
 
+p = -30;    % Bring p as far out left as possible without crossing 
+            % the next pole at -32.17
+            
+z = 0;      % Need to cancel one of the zeros
 
+figure();
+D_x2 = zpk(z, p, 1);
+rlocus(G_x2 .* D_x2);
+
+% Let gain k = 1, as k increases the origin poles grow dangerously close
+% to the RHP, we want them as close as far away as possible
+T_position = feedback(D_x2 .* G_x2, 1);
+figure();
+step(T_position);
+info_x = stepinfo(T_position);
