@@ -19,7 +19,7 @@ A = 1 + ((2 .* (R_b.^2)) ./ (5 .* (r_b.^2)));
 
 % Selectables
 i = 4;                                          % Motor selection
-N = 10;                                         % Gearbox ratio, 10 - 50
+N = 14;                                         % Gearbox ratio, 10 - 50
 J_eff = J_m + J_g + (1./(N.^2)).*(J_T + J_s);   % Effective inertia (depends on N)
 
 % Motor Variables
@@ -93,8 +93,8 @@ title('Motor Plant Root Locus');
 
 % There is a pole at the origin which must be pulled out by a nearby zero.
 % The pole of the PD must be further in the LHP than the zero.
-z = -120;    % Zero, reasonably far in the LHP for a good response time
-p = -230;    % Pole, further in the LHP than z
+z = -50;     % Zero, close enough to origin pole to pull it
+p = -180;    % Pole, slightly further right than the conjugate pole pair
 
 % PID controller
 D_m = zpk(z, p, 1);     
@@ -102,8 +102,11 @@ figure('Name', 'Motor Controller Root Locus');
 rlocus(G_m .* D_m);  
 title('Motor Controller Root Locus');
 
-% Select gain of 1.3
-k = 1.31;
+% Select gain of 5, pulls the origin pole out but ensures the conjugate
+% pairs do not get too large of an angle (we don't want oscillations,
+% stability over speed in this application)
+
+k = 5;
 T_motor = feedback(D_m .* G_m, k);
 
 % Step response/stats for the motor control system
@@ -130,8 +133,8 @@ title('Position Plant Root Locus');
 %       (s + p)
 % where p's magnitude is greater than z's
 
-p = -12;    % Bring p as far out left as possible without crossing 
-            % the next pole at -32.17
+p = -20;    % Bring p as far out left as possible without crossing 
+            % the next pole at -20.9
             
 z = 0;      % Need to cancel one of the poles at the origin with a zero
 
@@ -141,14 +144,22 @@ D_x2 = zpk(z, p, 1);
 rlocus(G_x2 .* D_x2);
 title('Position Controller Root Locus');
 
-% Let gain k = 99.6, the meeting point of the origin pole and the
+% Let gain k = 97.9, the meeting point of the origin pole and the
 % controller pole. This pulls the origin pole as far into the LHP as
 % possible without introducing oscillations from complex conjugate poles
 % (that leads to overshoot, which we can't afford)
-k = 6.22;   
+k = 97.9;   
 T_position = feedback(D_x2 .* G_x2, k);
+[Tu_position, Umax_position] = controleffort(G_x2, T_position);
+info_x = stepinfo(T_position);
+
 figure('Name', 'Position Controller Step Response');
 step(T_position);
 title('Position Controller Step Response');
-info_x = stepinfo(T_position);
-[Tu_position, Umax_position] = controleffort(G_x2, T_position);
+
+figure('Name', 'Position Controller Control Effort');
+step(Tu_position);
+title('Position Controller Control Effort');
+
+
+
