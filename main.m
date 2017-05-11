@@ -150,16 +150,62 @@ title('Position Controller Root Locus');
 % (that leads to overshoot, which we can't afford)
 k = 97.9;   
 T_position = feedback(D_x2 .* G_x2, k);
-[Tu_position, Umax_position] = controleffort(G_x2, T_position);
-info_x = stepinfo(T_position);
+
+% The position transfer function represents the entire system
+T_sys = T_position;
+[Tu_sys, Umax_sys] = controleffort(G_x2, T_sys);
+info_x = stepinfo(T_sys);
 
 figure('Name', 'Position Controller Step Response');
-step(T_position);
+step(T_sys);
 title('Position Controller Step Response');
 
 figure('Name', 'Position Controller Control Effort');
-step(Tu_position);
+step(Tu_sys);
 title('Position Controller Control Effort');
 
+% ========= Operation ========== %
+t = linspace(0, 10, 1001);
+x(1:200)    =  0   .* k;
+x(201:400)  =  2   .* k;
+x(401:600)  =  2.5 .* k;
+x(601:800)  = -2.5 .* k;
+x(801:1001) =  0   .* k;
 
+y = lsim(T_sys, x, t);
 
+figure('Name', 'System Operation With Varying Input');
+[a, h1, h2] = plotyy(t, x, t, y);
+set(a(1), 'YTick', linspace(-2.5.*k, 2.5.*k, 11));
+set(a(1), 'YTickLabel', {'-2.5*k', '-2.0*k', '-1.5*k', ...
+    '-1.0*k', '-0.5*k', '0*k', '0.5*k', '1.0*k', '1.5*k', '2.0*k', '2.5*k'});
+set(a(1), 'YLim', [-3.*k, 3.*k]);
+
+set(a(2), 'YTick', linspace(-2.5, 2.5, 11));
+set(a(2), 'YTickLabel', {'-2.5', '-2.0', '-1.5', '-1.0', '-0.5', '0', ...
+    '0.5', '1.0', '1.5', '2.0', '2.5'});
+set(a(2), 'YLim', [-3, 3]);
+
+grid 'on';
+title('System Operation with Varying Input');
+legend('Input', 'Output');
+
+% plot(t, x);
+% yyaxis left;
+% xlim([0, 10]);
+% ylim([-2.5, 2.5]);
+% yticks([-2.5 -2 -1.5 -1 -0.5 0 0.5 1 1.5 2 2.5]);
+% yticklabels(['-2.5', '-2', '-1.5', '-1', '-0.5', '0',...
+%                         '0.5', '1.0', '1.5', '2.0', '2.5']);
+%                     
+% yyaxis right;
+% plot(t, y);
+% ylim([-2.5.*k, 2.5.*k]);
+% yticks([-2.5, -2, -1.5, -1, -0.5, 0, 0.5, 1.0, 1.5, 2.0, 2.5].*k);
+% yticklabels(['-2.5*k', '-2*k', '-1.5*k', '-1*k', '-0.5*k', '0*k',...
+%                         '0.5*k', '1.0*k', '1.5*k', '2.0*k', '2.5*k']);
+% 
+% 
+% 
+% 
+% 
