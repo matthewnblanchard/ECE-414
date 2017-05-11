@@ -189,6 +189,11 @@ set(a(2), 'YLim', [-3, 3]);
 grid 'on';
 title('System Operation with Varying Input');
 legend('Input', 'Output');
+xlabel('Time (s)');
+axes(a(1));
+ylabel('Input Voltage (V)');
+axes(a(2));
+ylabel('Touch Sensor Output Voltage (V)');
 
 % plot(t, x);
 % yyaxis left;
